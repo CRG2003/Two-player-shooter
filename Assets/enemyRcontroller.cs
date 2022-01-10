@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class enemyController : MonoBehaviour
+public class enemyRcontroller : MonoBehaviour
 {
     public GameObject player1;
     public GameObject player2;
     public GameObject bullet;
+    public GameObject EBullet;
+
     public float enemySpeed;
+    public float enemyFireRate;
+    float shotTimer;
 
     float health = 3;
     float switchTimer;
@@ -25,6 +29,7 @@ public class enemyController : MonoBehaviour
 
     void FixedUpdate()
     {
+        shotTimer -= Time.deltaTime;
         if (player1 != null)
         {
             playerSwitch = player1.GetComponent<PlayerController>().getSwitch();
@@ -45,12 +50,28 @@ public class enemyController : MonoBehaviour
             if (playerSwitch == false)
             {
                 transform.LookAt(new Vector3(player1.transform.position.x, 1, player1.transform.position.z));
+                if (shotTimer <= 0)
+                {
+                    Instantiate(EBullet, transform.position, transform.rotation);
+                    shotTimer = enemyFireRate;
+                }
+                if (Vector3.Distance(player1.transform.position, transform.position) < 20)
+                {
+                    transform.Translate(-Vector3.forward * enemySpeed);
+                }
+                else
+                {
+                    transform.Translate(Vector3.forward * enemySpeed);
+                }
             }
             else if (playerSwitch == true)
             {
                 transform.LookAt(new Vector3(player2.transform.position.x, 1, player2.transform.position.z));
+                if (Vector3.Distance(player2.transform.position, transform.position) < 20)
+                {
+                    transform.Translate(-Vector3.forward * enemySpeed);
+                }
             }
-            transform.Translate(Vector3.forward * enemySpeed);
         }
     }
 
@@ -86,3 +107,4 @@ public class enemyController : MonoBehaviour
         GetComponent<MeshRenderer>().material = red;
     }
 }
+

@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class enemySpawner : MonoBehaviour
 {
+    public GameObject player;
     public GameObject enemy;
+    public GameObject enemyR;
+    GameObject choice;
     public float spawnInterval;
     float spawnTimer;
     int wall;
@@ -17,27 +20,38 @@ public class enemySpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        spawnTimer -= Time.deltaTime;
-        if (spawnTimer <= 0)
+        if (player != null)
         {
-            wall = Random.Range(1, 4);
-            if (wall == 1)
+            if (Random.Range(-1f, 1f) > 0)
             {
-                Instantiate(enemy, new Vector3(-49, 1, Random.Range(-23f, 23f)), Quaternion.identity);
+                choice = enemy;
             }
-            else if (wall == 2)
+            else
             {
-                Instantiate(enemy, new Vector3(49, 1, Random.Range(-23f, 23f)), Quaternion.identity);
+                choice = enemyR;
             }
-            else if (wall == 3)
+            spawnTimer -= Time.deltaTime;
+            if (spawnTimer <= 0)
             {
-                Instantiate(enemy, new Vector3(Random.Range(-48f, 48f), 1, 24), Quaternion.identity);
+                wall = Random.Range(1, 4);
+                if (wall == 1)
+                {
+                    Instantiate(choice, new Vector3(-49, 1, Random.Range(-23f, 23f)), Quaternion.identity);
+                }
+                else if (wall == 2)
+                {
+                    Instantiate(choice, new Vector3(49, 1, Random.Range(-23f, 23f)), Quaternion.identity);
+                }
+                else if (wall == 3)
+                {
+                    Instantiate(choice, new Vector3(Random.Range(-48f, 48f), 1, 24), Quaternion.identity);
+                }
+                else if (wall == 4)
+                {
+                    Instantiate(choice, new Vector3(Random.Range(-48f, 48f), 1, -24), Quaternion.identity);
+                }
+                spawnTimer = spawnInterval;
             }
-            else if (wall == 4)
-            {
-                Instantiate(enemy, new Vector3(Random.Range(-48f, 48f), 1, -24), Quaternion.identity);
-            }
-            spawnTimer = spawnInterval;
         }
     }
 }
