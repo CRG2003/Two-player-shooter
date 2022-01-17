@@ -88,7 +88,11 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    Instantiate(bullet, player2.transform.position, player2.transform.rotation);
+                    b1 = Instantiate(bullet, player2.transform.position, player2.transform.rotation);
+                    b1.transform.Rotate(0, 7, 0);
+                    b2 = Instantiate(bullet, player2.transform.position, player2.transform.rotation);
+                    b3 = Instantiate(bullet, player2.transform.position, player2.transform.rotation);
+                    b3.transform.Rotate(0, -8, 0);
                     shotTimer = fireRate * 3;
                 }
             }

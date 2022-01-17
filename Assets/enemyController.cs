@@ -7,6 +7,7 @@ public class enemyController : MonoBehaviour
     public GameObject player1;
     public GameObject player2;
     public GameObject bullet;
+    public GameObject powerUp;
     public float enemySpeed;
 
     float health = 3;
@@ -72,6 +73,10 @@ public class enemyController : MonoBehaviour
             }
             if (health <= 0)
             {
+                if (Random.Range(0f, 10f) > 1f)
+                {
+                    Instantiate(powerUp, transform.position, transform.rotation);
+                }
                 Destroy(this.gameObject);
             }
             Destroy(info.collider.gameObject);

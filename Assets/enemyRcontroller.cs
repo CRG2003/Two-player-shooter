@@ -13,7 +13,7 @@ public class enemyRcontroller : MonoBehaviour
     public float enemyFireRate;
     float shotTimer;
 
-    float health = 3;
+    float health = 4;
     float switchTimer;
     bool playerSwitch;
 
@@ -67,9 +67,18 @@ public class enemyRcontroller : MonoBehaviour
             else if (playerSwitch == true)
             {
                 transform.LookAt(new Vector3(player2.transform.position.x, 1, player2.transform.position.z));
+                if (shotTimer <= 0)
+                {
+                    Instantiate(EBullet, transform.position, transform.rotation);
+                    shotTimer = enemyFireRate;
+                }
                 if (Vector3.Distance(player2.transform.position, transform.position) < 20)
                 {
                     transform.Translate(-Vector3.forward * enemySpeed);
+                }
+                else
+                {
+                    transform.Translate(Vector3.forward * enemySpeed);
                 }
             }
         }

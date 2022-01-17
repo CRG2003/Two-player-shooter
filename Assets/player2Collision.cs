@@ -21,6 +21,11 @@ public class player2Collision : MonoBehaviour
             Vector3 dir = info.transform.position - transform.position;
             info.collider.GetComponent<Rigidbody>().AddForce(dir * 25, ForceMode.Impulse);
         }
+        if (info.collider.tag == "Enemy bullet")
+        {
+            player.GetComponent<PlayerController>().health -= 1;
+            info.transform.Translate(-Vector3.forward * 20000000000000000f);
+        }
     }
     IEnumerator Flash()
     {
