@@ -221,7 +221,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player1: {fileID: 0}
   player2: {fileID: 0}
-  bullet: {fileID: 0}
+  bullet: {fileID: 394419201906786833, guid: 6711cfb2561db894c8f6d7a11e30f5db, type: 3}
+  powerUp: {fileID: 1106660678201585695, guid: 78409a026432ce94783e18dc6968df0a, type: 3}
   enemySpeed: 0.03
-  flash: {fileID: 0}
-  red: {fileID: 0}
+  flash: {fileID: 2100000, guid: 4b8f61046ee1c2e478dc205cc4200861, type: 2}
+  red: {fileID: 2100000, guid: aae218a4282922548a73cbb5beb8ef1f, type: 2}

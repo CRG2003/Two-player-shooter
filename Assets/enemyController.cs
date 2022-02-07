@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class enemyController : MonoBehaviour
 {
-    public GameObject player1;
-    public GameObject player2;
     public GameObject bullet;
     public GameObject powerUp;
-    public float enemySpeed;
 
+    GameObject player1;
+    GameObject player2;
+    GameObject player;
+    GameObject world;
+
+    float enemySpeed = 0.24f;
     float health = 3;
     float switchTimer;
     bool playerSwitch;
@@ -22,35 +25,23 @@ public class enemyController : MonoBehaviour
     void Start()
     {
         thisLight = GetComponentInChildren<Light>();
+
+        player1 = GameObject.Find("Player1");
+        player2 = GameObject.Find("Player2");
+        player = player1;
+
+        world = GameObject.Find("World");
     }
 
     void FixedUpdate()
     {
-        if (player1 != null)
-        {
-            playerSwitch = player1.GetComponent<PlayerController>().getSwitch();
+        if (world.GetComponent<worldController>().stage != "Survive"){
+            Destroy(this.gameObject);
+        }
+        if (player1 != null && world.GetComponent<worldController>().timeStop == false){
+            player = player1.GetComponent<PlayerController>().player;
             switchTimer -= Time.deltaTime;
-            if (Input.GetKey(KeyCode.E))
-            {
-                if (playerSwitch == true && switchTimer <= 0)
-                {
-                    playerSwitch = false;
-                    switchTimer = 1;
-                }
-                else if (switchTimer <= 0)
-                {
-                    playerSwitch = true;
-                    switchTimer = 1;
-                }
-            }
-            if (playerSwitch == false)
-            {
-                transform.LookAt(new Vector3(player1.transform.position.x, 1, player1.transform.position.z));
-            }
-            else if (playerSwitch == true)
-            {
-                transform.LookAt(new Vector3(player2.transform.position.x, 1, player2.transform.position.z));
-            }
+            transform.LookAt(new Vector3(player.transform.position.x, 1, player.transform.position.z));
             transform.Translate(Vector3.forward * enemySpeed);
         }
     }
@@ -73,7 +64,7 @@ public class enemyController : MonoBehaviour
             }
             if (health <= 0)
             {
-                if (Random.Range(0f, 10f) > 1f)
+                if (Random.Range(0f, 10f) > 9f)
                 {
                     Instantiate(powerUp, transform.position, transform.rotation);
                 }

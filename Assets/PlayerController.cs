@@ -4,161 +4,188 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float playerSpeed;
-    public float fireRate;
+    private AudioSource audio;
+    public AudioClip shoot1;
+    public AudioClip shoot2;
+    public AudioClip shoot3;
+    private AudioClip shoot;
+    public AudioClip hit;
+
+    public float playerSpeed = 4;
+    float fireRate = 0.4f;
     public float health = 5;
 
     float rayLen;
     float switchTimer;
     float shotTimer;
+    
+    public float powerUpTimer;
 
     public Material selected;
     public Material nSelected;
     public Material flash;
 
-    public GameObject player2;
+    GameObject player2;
+    GameObject world;
+
     public GameObject p1Light;
     public GameObject p2Light;
     public GameObject bullet;
     private GameObject b1;
     private GameObject b2;
     private GameObject b3;
+    public GameObject player;
 
-    public bool firing;
     public bool playerSwitch = false;
+    public bool damageUp = false;
+    public bool powerUp = false;
+    public bool animFreeze;
+    public bool godMode = false;
+    float godTimer = 0;
 
     private Camera mainCamera;
 
-    Rigidbody p1b;
-    Rigidbody p2b;
+    Rigidbody pb;
 
     Vector3 dir;
 
     void Start()
     {
-        p1b = GetComponent<Rigidbody>();
-        p2b = player2.GetComponent<Rigidbody>();
-        p2Light.GetComponent<Light>().enabled = false;
+        player = this.gameObject;
+        pb = GetComponent<Rigidbody>();
+        p2Light.GetComponent<Light>().color = new Vector4 (1, 1, 1, 0.3f);
 
         mainCamera = FindObjectOfType<Camera>();
+
+        player2 = GameObject.Find("Player2");
+        world = GameObject.Find("World");
+
+        audio = GetComponent<AudioSource>();
+
     }
 
     void FixedUpdate()
     {
-        if (this != null)
-        {
+        animFreeze = world.GetComponent<worldController>().animFreeze;
+        if (this != null && world.GetComponent<worldController>().stage != "victory" && animFreeze != true){
+            // Timers  
+            switchTimer -= Time.deltaTime;
+            shotTimer -= Time.deltaTime;
+            powerUpTimer -= Time.deltaTime;
+            godTimer -= Time.deltaTime;
+
+
+            // PLayer switch 
+            if (Input.GetKey(KeyCode.E) && switchTimer <= 0){
+                if (player == player2){
+                    player = this.gameObject;
+                    pb = GetComponent<Rigidbody>();
+
+                    GetComponent<MeshRenderer>().material = selected;
+                    player2.GetComponent<MeshRenderer>().material = nSelected;
+                    p2Light.GetComponent<Light>().color = new Vector4 (1, 1, 1, 0.3f);
+                    p1Light.GetComponent<Light>().color = new Vector4(1, 0.94f, 0, 1);
+                }
+
+                else{
+                    player = player2;
+                    pb = player2.GetComponent<Rigidbody>();
+
+                    GetComponent<MeshRenderer>().material = nSelected;
+                    player2.GetComponent<MeshRenderer>().material = selected;
+                    p1Light.GetComponent<Light>().color = new Vector4(1, 1, 1, 0.3f);
+                    p2Light.GetComponent<Light>().color = new Vector4(1, 0.94f, 0, 1);
+                }
+                switchTimer = 0.5f;
+            }       
+            if (Input.GetKey(KeyCode.Q) && godTimer <= 0){
+                if (godMode == true){
+                    godMode = false;
+                }
+                else{
+                    godMode = true;
+                }
+                godTimer = 0.2f;
+            }
+
+            // Player face camera      
             Ray cameraRay = mainCamera.ScreenPointToRay(Input.mousePosition);
             Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
             if (groundPlane.Raycast(cameraRay, out rayLen))
             {
-                if (playerSwitch == false)
-                {
-                    Vector3 pointToLook = cameraRay.GetPoint(rayLen);
-                    transform.LookAt(new Vector3(pointToLook.x, transform.position.y, pointToLook.z));
-                }
-                else
-                {
-                    Vector3 pointToLook = cameraRay.GetPoint(rayLen);
-                    player2.transform.LookAt(new Vector3(pointToLook.x, player2.transform.position.y, pointToLook.z));
-                }
+                Vector3 pointToLook = cameraRay.GetPoint(rayLen);
+                player.transform.LookAt(new Vector3(pointToLook.x, player.transform.position.y, pointToLook.z));
+
             }
+
+            if (Random.Range(0f, 3f) <= 1f){
+                shoot = shoot1;
+            }
+            else if (Random.Range(0f, 2f) <= 1f){
+                shoot = shoot2;
+            }
+            else{
+                shoot = shoot3;
+            }
+
+            // Standered shot
             if (Input.GetKey(KeyCode.Mouse0) && shotTimer <= 0)
             {
-                if (playerSwitch == false)
+                if (damageUp)
                 {
-                    Instantiate(bullet, transform.position, transform.rotation);
+                    Instantiate(bullet, player.transform.position, player.transform.rotation);
+                    Instantiate(bullet, player.transform.position, player.transform.rotation);
+                    audio.PlayOneShot(shoot);
                     shotTimer = fireRate;
                 }
                 else
                 {
-                    Instantiate(bullet, player2.transform.position, player2.transform.rotation);
+                    Instantiate(bullet, player.transform.position, player.transform.rotation);
+                    audio.PlayOneShot(shoot);
                     shotTimer = fireRate;
                 }
             }
+
+            // Secondary shot 
             if (Input.GetKey(KeyCode.Mouse1) && shotTimer <= 0)
             {
-                if (playerSwitch == false)
-                {
-                    b1 = Instantiate(bullet, transform.position, transform.rotation);
-                    b1.transform.Rotate(0, 7, 0);
-                    b2 = Instantiate(bullet, transform.position, transform.rotation);
-                    b3 = Instantiate(bullet, transform.position, transform.rotation);
-                    b3.transform.Rotate(0, -8, 0);
-                    shotTimer = fireRate * 3;
-                }
-                else
-                {
-                    b1 = Instantiate(bullet, player2.transform.position, player2.transform.rotation);
-                    b1.transform.Rotate(0, 7, 0);
-                    b2 = Instantiate(bullet, player2.transform.position, player2.transform.rotation);
-                    b3 = Instantiate(bullet, player2.transform.position, player2.transform.rotation);
-                    b3.transform.Rotate(0, -8, 0);
-                    shotTimer = fireRate * 3;
-                }
+                b1 = Instantiate(bullet, player.transform.position, player.transform.rotation);
+                b1.transform.Rotate(0, 7, 0);
+                b2 = Instantiate(bullet, player.transform.position, player.transform.rotation);
+                b3 = Instantiate(bullet, player.transform.position, player.transform.rotation);
+                b3.transform.Rotate(0, -8, 0);
+                audio.PlayOneShot(shoot);
+                audio.PlayOneShot(shoot);
+                shotTimer = fireRate * 2;  
             }
 
-            switchTimer -= Time.deltaTime;
-            shotTimer -= Time.deltaTime;
+            // Power up handling 
+            if (powerUpTimer <= 0)
+            {
+                playerSpeed = 4;
+                damageUp = false;
+                powerUp = false;
+            }
 
-            if (playerSwitch == false)
+            // Player movement 
+            if (Input.GetKey(KeyCode.W))
             {
-                if (Input.GetKey(KeyCode.W))
-                {
-                    p1b.AddForce(new Vector3(0, 0, 1) * playerSpeed, ForceMode.Impulse);
-                }
-                if (Input.GetKey(KeyCode.S))
-                {
-                    p1b.AddForce(new Vector3(0, 0, -1) * playerSpeed, ForceMode.Impulse);
-                }
-                if (Input.GetKey(KeyCode.A))
-                {
-                    p1b.AddForce(new Vector3(-1, 0, 0) * playerSpeed, ForceMode.Impulse);
-                }
-                if (Input.GetKey(KeyCode.D))
-                {
-                    p1b.AddForce(new Vector3(1, 0, 0) * playerSpeed, ForceMode.Impulse);
-                }
+                pb.AddForce(new Vector3(0, 0, 1) * playerSpeed, ForceMode.Impulse);
             }
-            else
+            if (Input.GetKey(KeyCode.S))
             {
-                if (Input.GetKey(KeyCode.W))
-                {
-                    p2b.AddForce(new Vector3(0, 0, 1) * playerSpeed, ForceMode.Impulse);
-                }
-                if (Input.GetKey(KeyCode.S))
-                {
-                    p2b.AddForce(new Vector3(0, 0, -1) * playerSpeed, ForceMode.Impulse);
-                }
-                if (Input.GetKey(KeyCode.A))
-                {
-                    p2b.AddForce(new Vector3(-1, 0, 0) * playerSpeed, ForceMode.Impulse);
-                }
-                if (Input.GetKey(KeyCode.D))
-                {
-                    p2b.AddForce(new Vector3(1, 0, 0) * playerSpeed, ForceMode.Impulse);
-                }
+                pb.AddForce(new Vector3(0, 0, -1) * playerSpeed, ForceMode.Impulse);
             }
-            if (Input.GetKey(KeyCode.E))
+            if (Input.GetKey(KeyCode.A))
             {
-                if (playerSwitch == true && switchTimer <= 0)
-                {
-                    playerSwitch = false;
-                    switchTimer = 1;
-                    GetComponent<MeshRenderer>().material = selected;
-                    p1Light.GetComponent<Light>().enabled = true;
-                    player2.GetComponent<MeshRenderer>().material = nSelected;
-                    p2Light.GetComponent<Light>().enabled = false;
-                }
-                else if (switchTimer <= 0)
-                {
-                    playerSwitch = true;
-                    switchTimer = 1;
-                    GetComponent<MeshRenderer>().material = nSelected;
-                    p1Light.GetComponent<Light>().enabled = false;
-                    player2.GetComponent<MeshRenderer>().material = selected;
-                    p2Light.GetComponent<Light>().enabled = true;
-                }
+                pb.AddForce(new Vector3(-1, 0, 0) * playerSpeed, ForceMode.Impulse);
             }
+            if (Input.GetKey(KeyCode.D))
+            {
+                pb.AddForce(new Vector3(1, 0, 0) * playerSpeed, ForceMode.Impulse);
+            }
+
+            // Handles death 
             if (health <= 0)
             {
                 Destroy(this.gameObject);
@@ -170,14 +197,35 @@ public class PlayerController : MonoBehaviour
     {
         if (info.collider.tag == "Enemy")
         {
-            health -= 1;
+            if (godMode == false){
+                health -= 1;
+            }
+            audio.PlayOneShot(hit);
             StartCoroutine(Flash());
             info.transform.Translate(-Vector3.forward * 20f);
         }
         if (info.collider.tag == "Enemy bullet")
         {
-            health -= 1;
+            if (godMode == false){
+                health -= 1;
+            }
+            audio.PlayOneShot(hit);
             info.transform.Translate(-Vector3.forward * 2000000000000000f);
+        }
+        if (info.collider.tag == "Power up" && powerUp == false)
+        {
+            powerUp = true;
+            if (info.gameObject.GetComponent<powerUpController>().type == true)
+            {
+                playerSpeed *= 1.5f;
+            }
+            else
+            {
+                damageUp = true;
+            }
+            powerUpTimer = 15;
+            world.GetComponent<worldController>().powerUpTimer = 15.0f;
+            Destroy(info.gameObject);
         }
     }
     IEnumerator Flash()

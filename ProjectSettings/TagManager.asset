@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - Enemy bullet
   - Power up
+  - Boss
+  - gun
   layers:
   - Default
   - TransparentFX
@@ -19,7 +21,7 @@ TagManager:
   - Player
   - Bullet
   - Bullet enemy
-  - 
+  - gun
   - 
   - 
   - 

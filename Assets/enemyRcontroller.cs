@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class enemyRcontroller : MonoBehaviour
 {
-    public GameObject player1;
-    public GameObject player2;
-    public GameObject bullet;
+    private AudioSource audio;
+    public AudioClip shoot;
+
+    GameObject player1;
+    GameObject player2;
+    GameObject player;
+    GameObject world;
+
     public GameObject EBullet;
+    public GameObject powerUp;
 
     public float enemySpeed;
     public float enemyFireRate;
     float shotTimer;
 
-    float health = 4;
+    float health = 3; 
     float switchTimer;
     bool playerSwitch;
 
@@ -25,62 +31,39 @@ public class enemyRcontroller : MonoBehaviour
     void Start()
     {
         thisLight = GetComponentInChildren<Light>();
+
+        player1 = GameObject.Find("Player1");
+        player2 = GameObject.Find("Player2");
+        player = player1;
+
+        world = GameObject.Find("World");
+
+        audio = GetComponent<AudioSource>();
     }
 
     void FixedUpdate()
     {
-        shotTimer -= Time.deltaTime;
-        if (player1 != null)
-        {
-            playerSwitch = player1.GetComponent<PlayerController>().getSwitch();
+        if (player1 != null && world.GetComponent<worldController>().timeStop == false){
+            player = player1.GetComponent<PlayerController>().player;
             switchTimer -= Time.deltaTime;
-            if (Input.GetKey(KeyCode.E))
-            {
-                if (playerSwitch == true && switchTimer <= 0)
-                {
-                    playerSwitch = false;
-                    switchTimer = 1;
-                }
-                else if (switchTimer <= 0)
-                {
-                    playerSwitch = true;
-                    switchTimer = 1;
-                }
+            shotTimer -= Time.deltaTime;
+
+            transform.LookAt(new Vector3(player.transform.position.x, 1, player.transform.position.z));
+            if (shotTimer <= 0){
+                Instantiate(EBullet, transform.position, transform.rotation);
+                shotTimer = enemyFireRate;
+                audio.PlayOneShot(shoot);
             }
-            if (playerSwitch == false)
-            {
-                transform.LookAt(new Vector3(player1.transform.position.x, 1, player1.transform.position.z));
-                if (shotTimer <= 0)
-                {
-                    Instantiate(EBullet, transform.position, transform.rotation);
-                    shotTimer = enemyFireRate;
-                }
-                if (Vector3.Distance(player1.transform.position, transform.position) < 20)
-                {
-                    transform.Translate(-Vector3.forward * enemySpeed);
-                }
-                else
-                {
-                    transform.Translate(Vector3.forward * enemySpeed);
-                }
+
+            if (Vector3.Distance(player.transform.position, transform.position) < 20){
+                transform.Translate(-Vector3.forward * enemySpeed);
             }
-            else if (playerSwitch == true)
-            {
-                transform.LookAt(new Vector3(player2.transform.position.x, 1, player2.transform.position.z));
-                if (shotTimer <= 0)
-                {
-                    Instantiate(EBullet, transform.position, transform.rotation);
-                    shotTimer = enemyFireRate;
-                }
-                if (Vector3.Distance(player2.transform.position, transform.position) < 20)
-                {
-                    transform.Translate(-Vector3.forward * enemySpeed);
-                }
-                else
-                {
-                    transform.Translate(Vector3.forward * enemySpeed);
-                }
+            else{
+                transform.Translate(Vector3.forward * enemySpeed);
             }
+        }
+        if (world.GetComponent<worldController>().stage != "Survive"){
+            Destroy(this.gameObject);
         }
     }
 
@@ -102,6 +85,9 @@ public class enemyRcontroller : MonoBehaviour
             }
             if (health <= 0)
             {
+                if (Random.Range(0f, 10f) > 9f){
+                    Instantiate(powerUp, transform.position, transform.rotation);
+                }
                 Destroy(this.gameObject);
             }
             Destroy(info.collider.gameObject);
@@ -116,4 +102,3 @@ public class enemyRcontroller : MonoBehaviour
         GetComponent<MeshRenderer>().material = red;
     }
 }
-

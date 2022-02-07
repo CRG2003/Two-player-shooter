@@ -4,38 +4,27 @@ using UnityEngine;
 
 public class powerUpController : MonoBehaviour
 {
-    public GameObject player1;
+    public bool type;
 
-    float switchTimer;
-    float powerUpTime;
+    public Material speed;
+    public Material damage;
 
-
-    void Update()
+    void Start()
     {
-        switchTimer -= Time.deltaTime;
-        powerUpTime -= Time.deltaTime;
-
-        if (powerUpTime <= 0f)
+        if (Random.Range(-1f, 1f) < 0)
         {
-            Debug.Log(powerUpTime);
-            player1.GetComponent<PlayerController>().playerSpeed = 4;
+            type = true;
+            GetComponent<MeshRenderer>().material = speed;
         }
         else
         {
-            Debug.Log("Fast Speed");
+            type = false;
+            GetComponent<MeshRenderer>().material = damage;
         }
-
-        transform.Rotate(0, transform.rotation.y + 10, 0);
     }
 
-    void OnCollisionEnter(Collision info)
+    void Update()
     {
-        if (info.collider.tag == "Player")
-        {
-            player1.GetComponent<PlayerController>().playerSpeed = 10;
-            powerUpTime = 10;
-
-            Destroy(this.gameObject);
-        }
+        transform.Rotate(0, transform.rotation.y + 2, 0);
     }
 }
